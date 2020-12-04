@@ -33,6 +33,9 @@ jobs:
       - run:
           name: check Docker images
           command: docker images
+      - run:
+          name: Decrpyt Secrets
+          command: openssl enc -d -aes-256-ecb -md md5 -in src/main/resources/application.properties.secrets -out src/main/resources/application.properties -k $SECRETS_KEY
 
       # Download and cache dependencies
       - restore_cache:
@@ -110,7 +113,7 @@ jobs:
           command: echo $CIRCLE_BUILD_NUM
       - run:
           name: Push the tagged image to AWS ECR repository
-          command: docker push 688559712485.dkr.ecr.us-west-1.amazonaws.com/galaxy:latest
+          command: docker push 688559712485.dkr.ecr.us-west-1.amazonaws.com/galaxy-chatbot:latest
       - run:
           name: re-boot the relted EC2 instance to update and load the most recent image
           command: aws ec2 reboot-instances --instance-ids i-08ccc058aa5f25dcd
