@@ -36,9 +36,10 @@ public class GreetingController {
     private TwilioConfiguration twilioConfiguration;
 
     @RequestMapping(value="/greeting", method=RequestMethod.GET)
-    public ResponseEntity greeting(@Valid @RequestBody SmsRequest smsRequest){
+    public ResponseEntity greeting(){
         return ResponseEntity.ok().body("Hello welcome to galaxy chat~");
     }
+
     @RequestMapping(value="/sendsms", method= RequestMethod.POST)
     public void sendSms(@Valid @RequestBody SmsRequest smsRequest) {
         if(isPhoneNumberValid(smsRequest.getPhoneNumber())){
