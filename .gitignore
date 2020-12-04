@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### application.properties for hiding kyes ###
+/src/main/resources/application.properties

@@ -1,0 +1,122 @@
+# tutorial for setup circleci with docker, config.yml: https://medium.com/faun/setup-a-circleci-pipeline-for-a-containerized-spring-boot-app-93045fa060de
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      # make sure the image has pre-installed docker command
+      # make sure use the image that has the docker-cli pre-installed
+      # circleci jdk-version: https://circleci.com/developer/images/image/cimg/openjdk
+      - image: cimg/openjdk:14.0
+
+    # make working directory on circleCI
+    working_directory: ~/galaxychatbots
+
+    steps:
+      # git pull
+      - checkout
+
+      # setup testing env
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
+      - run:
+          name: Does Java Exist
+          command: java -version
+      - run:
+          name: doese Docker Exist
+          command: docker -v
+
+      - run:
+          name: Login to DockerHub
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
+          name: check Docker images
+          command: docker images
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - upload-image-{{ checksum "pom.xml" }}
+      - run:
+          name: mvn dependency go-offline
+          command: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: upload-image-{{ checksum "pom.xml" }}
+
+      # package into a jar
+      - run:
+          name: package project into a jar
+          command: mvn clean package
+
+      # build and push docker image to docker hub
+      - run:
+          name: build and push docker image to docker hub
+          command: mvn clean compile com.google.cloud.tools:jib-maven-plugin:2.6.0:build -Dimage=zioncode/galaxy-chatbot:$CIRCLE_BUILD_NUM
+      - run:
+          name: check docker image-list -before
+          command: docker images
+
+      # store raw contents of src code
+      - store_artifacts:
+          path: target/classes
+          destination: update-image
+
+      # setup AWS Cli
+      # using AWS ECR to host docker images: https://gist.github.com/awssimplified/da49577fa48128e1da992dd6ec21085c
+      # Docker -> ECR -> ECS -> EC2 : https://www.youtube.com/watch?v=zs3tyVgiBQQ | additional: https://www.youtube.com/watch?v=yjb5kfRUw0A
+      - run:
+          name: download AWS cli
+          command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      - run:
+          name: unzip the file
+          command: unzip awscliv2.zip
+      - run:
+          name: check files
+          command: ls
+      - run:
+          name: install AWS cli
+          command: sudo ./aws/install
+      # check AWS version
+      - run:
+          name: Check AWS version
+          command: aws --version
+
+      # configure AWS
+      - run:
+          name: configure AWS credentials
+          command: aws configure set aws_access_key_id $ACCESSKEY | aws configure set aws_secret_access_key $SECRETACCESSKEY | aws configure set region us-west-1
+      # log into ECR
+      - run:
+          name: Log into ECR
+          command: aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 688559712485.dkr.ecr.us-west-1.amazonaws.com
+      - run:
+          name: Delete the latest from ECR first
+          command: aws ecr batch-delete-image --repository-name galaxy-chatbot --image-ids imageTag=latest
+      - run:
+          name: Pull image from Docker
+          command: docker pull zioncode/galaxy-chatbot:$CIRCLE_BUILD_NUM
+      - run:
+          name: Tag the image to ECR:latest
+          command: docker tag zioncode/galaxy-chatbot:$CIRCLE_BUILD_NUM 688559712485.dkr.ecr.us-west-1.amazonaws.com/galaxy-chatbot:latest
+      - run:
+          name: check docker image-list -later
+          command: docker images
+      - run:
+          name: print $CIRCLE_BUILD_NUM
+          command: echo $CIRCLE_BUILD_NUM
+      - run:
+          name: Push the tagged image to AWS ECR repository
+          command: docker push 688559712485.dkr.ecr.us-west-1.amazonaws.com/galaxy:latest
+      - run:
+          name: re-boot the relted EC2 instance to update and load the most recent image
+          command: aws ec2 reboot-instances --instance-ids i-08ccc058aa5f25dcd
+      - run:
+          name: Remove all env images
+          command: docker rmi -f $(docker images -a -q)
+
+
+
