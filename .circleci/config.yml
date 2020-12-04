@@ -116,7 +116,7 @@ jobs:
           command: docker push 688559712485.dkr.ecr.us-west-1.amazonaws.com/galaxy-chatbot:latest
       - run:
           name: re-boot the relted EC2 instance to update and load the most recent image
-          command: aws ec2 reboot-instances --instance-ids i-08ccc058aa5f25dcd
+          command: aws ec2 reboot-instances --instance-ids i-0d9c277147e96e198
       - run:
           name: Remove all env images
           command: docker rmi -f $(docker images -a -q)
