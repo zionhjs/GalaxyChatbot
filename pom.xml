@@ -51,17 +51,16 @@
 <!--			<artifactId>twilio</artifactId>-->
 <!--			<version>8.4.0</version>-->
 <!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>com.twilio.sdk</groupId>-->
-<!--			<artifactId>twilioo</artifactId>-->
-<!--			<version>8.5.1</version>-->
-<!--		</dependency>-->
+
+<!--		the way to add dependencies from external jar:https://stackoverflow.com/questions/5692256/maven-best-way-of-linking-custom-external-jar-to-my-project-->
 		<dependency>
-			<groupId>twilio-8.5.1</groupId>
-			<artifactId>twilio-8.5.1</artifactId>
+			<groupId>com.twilio.sdk</groupId>
+			<artifactId>twilio</artifactId>
 			<scope>system</scope>
 			<version>8.5.1</version>
-			<systemPath>${basedir}/lib/twilio-8.5.1.jar</systemPath>
+			<systemPath>${basedir}/src/lib/twilio-8.5.1.jar</systemPath>
+			<type>jar</type>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
