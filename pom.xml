@@ -18,6 +18,21 @@
 		<java.version>15</java.version>
 	</properties>
 
+<!--	<repositories>-->
+<!--		<repository>-->
+<!--			<id>project-common</id>-->
+<!--			<name>Project Common</name>-->
+<!--			<url>https://github.com/zionhjs/mvn-repo/blob/master/</url>-->
+<!--		</repository>-->
+<!--	</repositories>-->
+<!--	<repositories>-->
+<!--		<repository>-->
+<!--			<id>project-common</id>-->
+<!--			<name>Project Common</name>-->
+<!--			<url>file://galaxychatbots/lib</url>-->
+<!--		</repository>-->
+<!--	</repositories>-->
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -36,11 +51,19 @@
 <!--			<artifactId>twilio</artifactId>-->
 <!--			<version>8.4.0</version>-->
 <!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>com.twilio.sdk</groupId>-->
+<!--			<artifactId>twilioo</artifactId>-->
+<!--			<version>8.5.1</version>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>com.twilio.sdk</groupId>
-			<artifactId>twilioo</artifactId>
+			<groupId>twilio-8.5.1</groupId>
+			<artifactId>twilio-8.5.1</artifactId>
+			<scope>system</scope>
 			<version>8.5.1</version>
+			<systemPath>${basedir}/lib/twilio-8.5.1.jar</systemPath>
 		</dependency>
+
 		<dependency>
 			<groupId>com.twilio.sdk</groupId>
 			<artifactId>twilio-java-sdk</artifactId>
