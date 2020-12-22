@@ -34,6 +34,8 @@ import java.util.List;
  * connect autopilot to channel: https://www.twilio.com/docs/autopilot/channels/chat#3-add-autopilot-url-to-channel
  * twilio resources doc: https://www.twilio.com/docs/chat/channels#delete-a-channel
  * full tutorial of building a chat-application: https://www.twilio.com/blog/2018/03/programmable-chat-java-struts-2-app.html
+ *
+ * The correct way to reference the jar: https://stackoverflow.com/questions/50123202/compiling-maven-project-throws-error-while-using-custom-jar
  */
 @Controller
 @RequestMapping("/chatbot")
