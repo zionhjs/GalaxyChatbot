@@ -31,15 +31,45 @@
 		</dependency>
 
 		<!--Twilio Dependency-->
-		<dependency>
-			<groupId>com.twilio.sdk</groupId>
-			<artifactId>twilio</artifactId>
-			<version>7.34.0</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.twilio.sdk</groupId>-->
+<!--			<artifactId>twilio</artifactId>-->
+<!--			<version>8.4.0</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>com.twilio.sdk</groupId>
 			<artifactId>twilio-java-sdk</artifactId>
 			<version>3.6.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven.archetypes</groupId>
+			<artifactId>maven-archetype-webapp</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-core</artifactId>
+			<version>2.5.14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-json-plugin</artifactId>
+			<version>2.5.14</version>
+		</dependency>
+
+<!--		add logging libaries -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+
+		<!--alibaba FastJson依赖-->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.47</version>
 		</dependency>
 
 		<dependency>
@@ -89,6 +119,16 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.galaxy</groupId>-->
+<!--			<artifactId>galaxychatbots</artifactId>-->
+<!--			<version>0.0.1-SNAPSHOT</version>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>

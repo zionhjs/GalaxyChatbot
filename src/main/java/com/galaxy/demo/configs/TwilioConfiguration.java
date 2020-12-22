@@ -16,5 +16,11 @@ import org.springframework.context.annotation.Configuration;
 public class TwilioConfiguration {
     private String accountSid;
     private String authToken;
+    private String serviceSid;
+    private String chatServiceSid;
     private String trialNumber;
+    private String apiKey;
+    private String apiSecret;
+    private String autopilotUrl;
 }
+

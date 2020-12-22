@@ -1,5 +1,6 @@
 package com.galaxy.demo.configs;
 
+import com.galaxy.demo.services.twilio.TwilioTokenCreator;
 import com.twilio.Twilio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +14,24 @@ public class TwilioInitializer {
     private TwilioConfiguration twilioconfiguration;
 
     @Autowired
+    private TwilioTokenCreator twilioTokenCreator;
+
+    @Autowired
     public TwilioInitializer(TwilioConfiguration twilioConfiguration){
+        // initialize twilio client
         Twilio.init(
                 twilioConfiguration.getAccountSid(),
                 twilioConfiguration.getAuthToken()
         );
+        Twilio.setRegion("us1");
+        Twilio.setEdge("umatilla");
         LOGGER.info("Twilio initialized ... with account sid {} ", twilioConfiguration.getAccountSid());
+
+        // initialize twilio chatclient instance
+//        String token = twilioTokenCreator.generateToken("adminuser");
+//        ChatClient.Properties props = new ChatClient.Properties.Builder().setRegion("us1").createProperties();
+//        ChatClient.create(context.getApplicationContext(), token, props, this);
     }
 
 }
+
