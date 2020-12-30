@@ -25,6 +25,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +74,7 @@ public class ChatController {
             LOGGER.info("channel: " + channel.toString());
             LOGGER.info("webhook: " + webhook.toString());
             // add chatbot to channel -> starts from webhook
-            LOGGER.info(" The autopilotUrl for the WebHook is: " + twilioConfiguration.getAutopilotUrl());
+            LOGGER.info(" The autopilotUrl for the WebHook is: " + webhook.getConfiguration());
             try{
                 response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
             }catch(IOException e){
@@ -88,6 +90,30 @@ public class ChatController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        return response;
+    }
+
+    @RequestMapping(value="/disconnect", method=RequestMethod.POST)
+    public ServletResponse disconnectFromChatBot(ServletRequest request, ServletResponse response){
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String email = httpRequest.getParameter("userEmail");
+        LOGGER.info("DisConneting to our chat agent! For email: " + email);
+        UserVo userVo = userVoDao.findUserVoByEmail(email);
+        removeChannel(userVo);
+        removeService(userVo);
+        removeWebhook(userVo);
+        // For result
+        LOGGER.info("Creating Result!");
+        Result result = new Result();
+        result.setCode(ResultCode.SUCCESS.code());
+        result.setMessage("successfully closed connection user from channel:" + " and user is now: " + JsonBinderUtil.toJson(userVo));
+        try {
+            response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return response;
@@ -130,7 +156,7 @@ public class ChatController {
         }
         return response;
     }
-    
+
     @RequestMapping(value="/getmessages", method=RequestMethod.POST)
     public ServletResponse getMessages(ServletRequest request, ServletResponse response){
         HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -154,55 +180,6 @@ public class ChatController {
         try{
             response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
         }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        return response;
-    }
-
-    @RequestMapping(value="/unsubscribe", method=RequestMethod.POST)
-    public ServletResponse unsubscribeUser(ServletRequest request, ServletResponse response){
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String email = httpRequest.getParameter("userEmail");
-        LOGGER.info("UnSubscribing For email: " + email);
-        UserVo userVo = userVoDao.findUserVoByEmail(email);
-        removeChannel(userVo);
-        removeService(userVo);
-        removeWebhook(userVo);
-        userVoDao.removeUserVo(userVo.getId());
-        // For result
-        LOGGER.info("Creating Result!");
-        Result result = new Result();
-        result.setCode(ResultCode.SUCCESS.code());
-        result.setMessage(" removing user from our list: " + JsonBinderUtil.toJson(userVo));
-        try {
-            response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response;
-    }
-
-    @RequestMapping(value="/disconnect", method=RequestMethod.POST)
-    public ServletResponse disconnectFromChatBot(ServletRequest request, ServletResponse response){
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String email = httpRequest.getParameter("userEmail");
-        LOGGER.info("DisConneting to our chat agent! For email: " + email);
-        UserVo userVo = userVoDao.findUserVoByEmail(email);
-        removeChannel(userVo);
-        removeService(userVo);
-        removeWebhook(userVo);
-        // For result
-        LOGGER.info("Creating Result!");
-        Result result = new Result();
-        result.setCode(ResultCode.SUCCESS.code());
-        result.setMessage("successfully closed connection user from channel:" + " and user is now: " + JsonBinderUtil.toJson(userVo));
-        try {
-            response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
-        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -244,11 +221,20 @@ public class ChatController {
             LOGGER.info("fetched webhook is: " + webhook.toString());
         }else{
             LOGGER.info("autopilotUrl is: " + twilioConfiguration.getAutopilotUrl());
+            String url = "";
+            try{
+                url = URLEncoder.encode("{\"userEmail\":\"admin@galaxy.com\"}", "UTF-8");
+            }catch (UnsupportedEncodingException e){
+                e.printStackTrace();
+            }
             webhook = Webhook.creator(userVo.getServiceSid(), userVo.getChannelSid(), Webhook.Type.WEBHOOK)
                     .setConfigurationFilters(Arrays.asList("onMessageSent"))
                     .setConfigurationMethod(Webhook.Method.POST)
-                    .setConfigurationUrl(twilioConfiguration.getAutopilotUrl())
+                    .setConfigurationUrl(twilioConfiguration.getAutopilotUrl() + "?Memory=" + url)
                     .create();
+                    //.setConfigurationUrl(twilioConfiguration.getAutopilotUrl())
+                    //.setConfigurationUrl(twilioConfiguration.getAutopilotUrl() + "?Memory={\"userEmail\":\"" + userVo.getUserEmail() + "\"}")
+                    //.create();
             userVo.setWebhookSid(webhook.getSid());
             userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
         }
@@ -278,4 +264,6 @@ public class ChatController {
     }
 
 }
+
+
 

@@ -1,17 +1,32 @@
- package com.galaxy.demo.controllers;
+package com.galaxy.demo.controllers;
 
 import com.galaxy.demo.dao.UserVoDao;
 import com.galaxy.demo.dto.vos.UserVo;
+import com.galaxy.demo.error.ResultCode;
+import com.galaxy.demo.payloads.Result;
+import com.galaxy.demo.payloads.SubscriptionRequest;
+import com.galaxy.demo.payloads.UnSubScriptionRequest;
+import com.galaxy.demo.services.ChannelService;
 import com.galaxy.demo.utils.JsonBinderUtil;
+import com.galaxy.demo.utils.ServletResponseUtils;
+import com.twilio.rest.chat.v2.Service;
+import com.twilio.rest.chat.v2.service.channel.Webhook;
+import com.twilio.rest.ipmessaging.v2.service.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -21,13 +36,37 @@ public class UserController {
     @Autowired
     private UserVoDao userVoDao;
 
+    @Autowired
+    private ChannelService channelService;
+
     @RequestMapping(value="/subscribe", method=RequestMethod.POST)
-    public ResponseEntity createUser(@RequestParam String email, @RequestParam String number){
+    public ServletResponse createUser(ServletRequest request, ServletResponse response){
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
         UserVo userVo = new UserVo();
+        String email = httpRequest.getParameter("email");
         userVo.setUserEmail(email);
-        userVo.setUserNumber(number);
-        userVoDao.createUserVo(userVo);
-        return ResponseEntity.ok().body(JsonBinderUtil.toJson(userVo));
+        if(request.getParameter("number") != null){
+            String number = httpRequest.getParameter("number");
+            userVo.setUserNumber(number);
+        }
+        Result result = new Result();
+        if(email != null){
+            result.setCode(ResultCode.SUCCESS.code());
+            result.setMessage(" Subscribed user to our list: " + JsonBinderUtil.toJson(userVo));
+            userVoDao.createUserVo(userVo);
+        }
+        else{
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage(" Must at least provide a user email!");
+        }
+        try {
+            response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response;
     }
 
     @RequestMapping(value="/alluservo", method=RequestMethod.GET)
@@ -40,9 +79,50 @@ public class UserController {
     }
 
     @RequestMapping(value="/unsubscribe", method=RequestMethod.POST)
-    public ResponseEntity unsubscribe(@RequestParam String email){
+    public ServletResponse unsubscribe(ServletRequest request, ServletResponse response){
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String email = httpRequest.getParameter("email");
+        LOGGER.info("UnSubscribing For email: " + email);
         UserVo userVo = userVoDao.findUserVoByEmail(email);
-        userVoDao.removeUserVo(userVo.getId());
-        return ResponseEntity.ok().body("SuccessFully unsubscribed " + email);
+        if(userVo.getChannelSid() != null) removeChannel(userVo);
+        if(userVo.getServiceSid() != null) removeService(userVo);
+        if(userVo.getWebhookSid() != null) removeWebhook(userVo);
+        if(userVo.getId() != null) userVoDao.removeUserVo(userVo.getId());
+        Result result = new Result();
+        result.setCode(ResultCode.SUCCESS.code());
+        result.setMessage(" removing user from our list: " + JsonBinderUtil.toJson(userVo));
+        try {
+            response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+        // return ResponseEntity.ok().body("SuccessFully unsubscribed " + unSubScriptionRequest.getUserEmail());
+    }
+
+    private void removeChannel(UserVo userVo){
+        Channel channel = Channel.fetcher(userVo.getServiceSid(), userVo.getChannelSid()).fetch();
+        channelService.deleteChannel(channel);
+        userVo.setChannelSid(null);
+        userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
+        LOGGER.info("Removed channel from userVo: " + userVo.toString());
+    }
+
+    private void removeService(UserVo userVo){
+        Service.deleter(userVo.getServiceSid());
+        userVo.setServiceSid(null);
+        userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
+        LOGGER.info("Removed service from userVo: " + userVo.toString());
+    }
+
+    private void removeWebhook(UserVo userVo){
+        Webhook.deleter(userVo.getServiceSid(), userVo.getChannelSid(), userVo.getWebhookSid());
+        userVo.setWebhookSid(null);
+        userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
+        LOGGER.info("Removed Webhook from userVo: " + userVo.toString());
     }
 }
+
+
