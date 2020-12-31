@@ -12,10 +12,10 @@ public class UnSubScriptionRequest {
     @NotBlank
     private String userEmail;
 
-    private String userName;
+    private String userNumber;
 
-    public UnSubScriptionRequest(@JsonProperty("userNumber") String userEmail, @JsonProperty("senderNumber") String userName) {
+    public UnSubScriptionRequest(@JsonProperty("userEmail") String userEmail, @JsonProperty("senderNumber") String userNumber) {
         this.userEmail = userEmail;
-        this.userName = userName;
+        this.userNumber = userNumber;
     }
 }

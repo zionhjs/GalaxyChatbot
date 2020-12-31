@@ -40,14 +40,14 @@ public class UserController {
     private ChannelService channelService;
 
     @RequestMapping(value="/subscribe", method=RequestMethod.POST)
-    public ServletResponse createUser(ServletRequest request, ServletResponse response){
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+    public ServletResponse createUser(@RequestBody UnSubScriptionRequest request, ServletResponse response){
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String email = request.getUserEmail();
         UserVo userVo = new UserVo();
-        String email = httpRequest.getParameter("email");
+        LOGGER.info("Subscribing For user-email: " + email);
         userVo.setUserEmail(email);
-        if(request.getParameter("number") != null){
-            String number = httpRequest.getParameter("number");
+        if(request.getUserNumber() != null){
+            String number = request.getUserNumber();
             userVo.setUserNumber(number);
         }
         Result result = new Result();
@@ -79,11 +79,10 @@ public class UserController {
     }
 
     @RequestMapping(value="/unsubscribe", method=RequestMethod.POST)
-    public ServletResponse unsubscribe(ServletRequest request, ServletResponse response){
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+    public ServletResponse unsubscribe(@RequestBody UnSubScriptionRequest request, ServletResponse response){
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String email = httpRequest.getParameter("email");
-        LOGGER.info("UnSubscribing For email: " + email);
+        String email = request.getUserEmail();
+        LOGGER.info("UnSubscribing For user-email: " + email);
         UserVo userVo = userVoDao.findUserVoByEmail(email);
         if(userVo.getChannelSid() != null) removeChannel(userVo);
         if(userVo.getServiceSid() != null) removeService(userVo);
