@@ -12,14 +12,10 @@ public class SubscriptionRequest {
     @NotBlank
     private String userEmail;
 
-    private String userName;
+    private String userNumber;
 
-    public SubscriptionRequest(@JsonProperty("userEmail") String userEmail) {
+    public SubscriptionRequest(@JsonProperty("userEmail") String userEmail, @JsonProperty("userNumber") String userNumber) {
         this.userEmail = userEmail;
-    }
-
-    public SubscriptionRequest(@JsonProperty("userEmail") String userEmail, @JsonProperty("userName") String userName) {
-        this.userEmail = userEmail;
-        this.userName = userName;
+        this.userNumber = userNumber;
     }
 }

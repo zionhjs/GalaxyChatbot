@@ -40,7 +40,7 @@ public class UserController {
     private ChannelService channelService;
 
     @RequestMapping(value="/subscribe", method=RequestMethod.POST)
-    public ServletResponse createUser(@RequestBody UnSubScriptionRequest request, ServletResponse response){
+    public ServletResponse createUser(@RequestBody SubscriptionRequest request, ServletResponse response){
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = request.getUserEmail();
         UserVo userVo = new UserVo();
