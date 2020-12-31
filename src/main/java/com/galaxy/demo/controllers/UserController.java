@@ -55,11 +55,11 @@ public class UserController {
             result.setCode(ResultCode.SUCCESS.code());
             result.setMessage(" Subscribed user to our list: " + JsonBinderUtil.toJson(userVo));
             userVoDao.createUserVo(userVo);
-        }
-        else{
+        }else{
             result.setCode(ResultCode.FAIL.code());
             result.setMessage(" Must at least provide a user email!");
         }
+
         try {
             response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
         } catch (IOException e) {
