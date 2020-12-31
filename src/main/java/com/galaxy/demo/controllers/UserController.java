@@ -50,8 +50,9 @@ public class UserController {
     public ServletResponse createUser(@RequestBody SubscriptionRequest request, ServletResponse response){
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = request.getUserEmail();
+        LOGGER.info("Subscribing For user-email: " + email);
         Result result = new Result();
-        if(userVoDao.findUserVoByEmail(email).getUserEmail() != null){
+        if(userVoDao.findUserVoByEmail(email) == null){
             UserVo userVo = new UserVo();
             LOGGER.info("Subscribing For user-email: " + email);
             userVo.setUserEmail(email);
