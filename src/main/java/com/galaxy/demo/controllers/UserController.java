@@ -1,5 +1,6 @@
 package com.galaxy.demo.controllers;
 
+import com.galaxy.demo.configs.TwilioConfiguration;
 import com.galaxy.demo.dao.UserVoDao;
 import com.galaxy.demo.dto.vos.UserVo;
 import com.galaxy.demo.error.ResultCode;
@@ -9,7 +10,9 @@ import com.galaxy.demo.payloads.UnSubScriptionRequest;
 import com.galaxy.demo.services.ChannelService;
 import com.galaxy.demo.utils.JsonBinderUtil;
 import com.galaxy.demo.utils.ServletResponseUtils;
+import com.twilio.base.ResourceSet;
 import com.twilio.rest.chat.v2.Service;
+import com.twilio.rest.chat.v2.service.channel.Message;
 import com.twilio.rest.chat.v2.service.channel.Webhook;
 import com.twilio.rest.ipmessaging.v2.service.Channel;
 import org.slf4j.Logger;
@@ -27,6 +30,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -84,13 +91,23 @@ public class UserController {
         String email = request.getUserEmail();
         LOGGER.info("UnSubscribing For user-email: " + email);
         UserVo userVo = userVoDao.findUserVoByEmail(email);
-        if(userVo.getChannelSid() != null) removeChannel(userVo);
-        if(userVo.getServiceSid() != null) removeService(userVo);
-        if(userVo.getWebhookSid() != null) removeWebhook(userVo);
-        if(userVo.getId() != null) userVoDao.removeUserVo(userVo.getId());
         Result result = new Result();
-        result.setCode(ResultCode.SUCCESS.code());
-        result.setMessage(" removing user from our list: " + JsonBinderUtil.toJson(userVo));
+        new java.util.Timer().schedule(
+                new java.util.TimerTask(){
+                    @Override
+                    public void run(){
+                        LOGGER.info("inside the run!~");
+                        if(userVo.getChannelSid() != null) removeChannel(userVo);
+                        if(userVo.getServiceSid() != null) removeService(userVo);
+                        if(userVo.getWebhookSid() != null) removeWebhook(userVo);
+                        if(userVo.getId() != null) userVoDao.removeUserVo(userVo.getId());
+                        result.setCode(ResultCode.SUCCESS.code());
+                        result.setMessage(" removing user from our list: " + JsonBinderUtil.toJson(userVo));
+                    }
+                },
+                1200
+        );
+
         try {
             response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
         } catch (IOException e) {
@@ -100,6 +117,13 @@ public class UserController {
         return response;
         // return ResponseEntity.ok().body("SuccessFully unsubscribed " + unSubScriptionRequest.getUserEmail());
     }
+
+//    private void delayUnsub(UserVo userVo){
+//        if(userVo.getChannelSid() != null) removeChannel(userVo);
+//        if(userVo.getServiceSid() != null) removeService(userVo);
+//        if(userVo.getWebhookSid() != null) removeWebhook(userVo);
+//        if(userVo.getId() != null) userVoDao.removeUserVo(userVo.getId());
+//    }
 
     private void removeChannel(UserVo userVo){
         Channel channel = Channel.fetcher(userVo.getServiceSid(), userVo.getChannelSid()).fetch();
