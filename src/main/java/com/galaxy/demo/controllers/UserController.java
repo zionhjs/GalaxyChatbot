@@ -50,21 +50,26 @@ public class UserController {
     public ServletResponse createUser(@RequestBody SubscriptionRequest request, ServletResponse response){
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = request.getUserEmail();
-        UserVo userVo = new UserVo();
-        LOGGER.info("Subscribing For user-email: " + email);
-        userVo.setUserEmail(email);
-        if(request.getUserNumber() != null){
-            String number = request.getUserNumber();
-            userVo.setUserNumber(number);
-        }
         Result result = new Result();
-        if(email != null){
-            result.setCode(ResultCode.SUCCESS.code());
-            result.setMessage(" Subscribed user to our list: " + JsonBinderUtil.toJson(userVo));
-            userVoDao.createUserVo(userVo);
+        if(userVoDao.findUserVoByEmail(email) != null){
+            UserVo userVo = new UserVo();
+            LOGGER.info("Subscribing For user-email: " + email);
+            userVo.setUserEmail(email);
+            if(request.getUserNumber() != null){
+                String number = request.getUserNumber();
+                userVo.setUserNumber(number);
+            }
+            if(email != null){
+                result.setCode(ResultCode.SUCCESS.code());
+                result.setMessage(" Subscribed user to our list: " + JsonBinderUtil.toJson(userVo));
+                userVoDao.createUserVo(userVo);
+            }else{
+                result.setCode(ResultCode.FAIL.code());
+                result.setMessage(" Must at least provide a user email!");
+            }
         }else{
             result.setCode(ResultCode.FAIL.code());
-            result.setMessage(" Must at least provide a user email!");
+            result.setMessage("The User already been subscribed!");
         }
 
         try {
