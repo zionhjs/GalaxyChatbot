@@ -51,7 +51,7 @@ public class UserController {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = request.getUserEmail();
         Result result = new Result();
-        if(userVoDao.findUserVoByEmail(email) != null){
+        if(userVoDao.findUserVoByEmail(email).getUserEmail() != null){
             UserVo userVo = new UserVo();
             LOGGER.info("Subscribing For user-email: " + email);
             userVo.setUserEmail(email);
