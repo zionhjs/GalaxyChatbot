@@ -19,7 +19,7 @@ public class InitFilter implements Filter {
             hresp.setHeader("Access-Control-Allow-Origin", "*");
             hresp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
             hresp.setHeader("Access-Control-Max-Age", "3600");
-            hresp.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, token");
+            hresp.setHeader("Access-Control-Allow-Headers", "*");
             hresp.addHeader("Access-Control-Allow-Credentials","true");
             // 浏览器是会先发一次options请求，如果请求通过，则继续发送正式的post请求
             // 配置options的请求返回
