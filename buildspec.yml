@@ -27,7 +27,7 @@ phases:
 
 artifacts:
   files:
-    - 'target/galaxy-chatbot-1.0.0.jar'
+    - 'target/galaxychatbots-0.0.1-SNAPSHOT.jar'
     - 'appspec.yml'
     - 'deploy/check.sh'
     - 'deploy/install.sh'
