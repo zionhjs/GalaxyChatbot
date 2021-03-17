@@ -15,6 +15,9 @@ phases:
       - echo current path is `pwd`
       - echo decrepted at `date`
       - mvn clean install
+      - cd ./src/main/resources
+      - echo last path is `pwd`
+      - echo last lst is `ls -list`
 
 artifacts:
   files:
