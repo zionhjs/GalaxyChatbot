@@ -16,6 +16,9 @@
 
 	<properties>
 		<java.version>8</java.version>
+		<maven.compiler.source.version>1.8</maven.compiler.source.version>
+		<maven.compiler.target.version>1.8</maven.compiler.target.version>
+		<maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
 	</properties>
 
 	<dependencies>
@@ -176,12 +179,12 @@
 			<!--			setup JAVA_HOME for mvn compile https://www.jianshu.com/p/03abf746cb2e-->
 			<!--			mvn compile problem: https://mkyong.com/maven/maven-error-invalid-target-release-1-11/-->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
+				<version>${maven.compiler.plugin.version}</version>
 				<configuration>
-					<source>14</source>
-					<target>14</target>
+					<target>${maven.compiler.target.version}</target>
+					<source>${maven.compiler.source.version}</source>
+					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
