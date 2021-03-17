@@ -13,21 +13,11 @@ phases:
       - echo build started at `date`
       - openssl enc -d -aes-256-ecb -md md5 -in ./src/main/resources/application.properties.secrets -out ./src/main/resources/application.properties -k $SECRETS_KEY
       #- openssl enc -d -aes-256-ecb -md md5 -in ./application.properties.secrets -out ./application.properties -k $SECRETS_KEY
-      - cd ./src/main/resources
-      - echo current path is `pwd`
-      - echo current lst is `ls -list`
-      - cd ..
-      - cd ..
-      - cd ..
       - echo decrepted at `date`
       - mvn clean install
-      - cd ./src/main/resources
-      - echo last path is `pwd`
-      - echo last lst is `ls -list`
-
 artifacts:
   files:
-    - 'target/galaxy-chatbot-1.0.0.jar'
+    - './target/galaxy-chatbot-1.0.0.jar'
     - 'appspec.yml'
     - 'deploy/check.sh'
     - 'deploy/install.sh'
