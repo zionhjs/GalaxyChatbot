@@ -17,9 +17,7 @@ phases:
       - openssl enc -d -aes-256-ecb -md md5 -in ./application.properties.secrets -out ./application.properties -k $SECRETS_KEY
       - echo current lst is `ls -list`
       #- openssl enc -d -aes-256-ecb -md md5 -in ./src/main/resources/application.properties.secrets -out src/main/resources/application.properties -k $SECRETS_KEY
-      - cd ..
-      - cd ..
-      - cd ..
+      - cd /codebuild/output/src127748459/src
       - echo current path is `pwd`
       - echo decrepted at `date`
       - mvn clean install
