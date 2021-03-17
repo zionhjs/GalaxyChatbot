@@ -15,6 +15,7 @@ phases:
       #- openssl enc -d -aes-256-ecb -md md5 -in ./application.properties.secrets -out ./application.properties -k $SECRETS_KEY
       - echo decrepted at `date`
       - mvn clean install
+      -
 artifacts:
   files:
     - './target/galaxy-chatbot-1.0.0.jar'
@@ -24,4 +25,5 @@ artifacts:
     - 'deploy/start.sh'
     - 'deploy/stop.sh'
   discard-paths: yes
+
 

@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.galaxy</groupId>
-	<artifactId>galaxychatbots</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>galaxychatbots</name>
-	<description>galaxychatbots</description>
+	<artifactId>galaxy-chatbot</artifactId>
+	<version>0.0.1</version>
+	<name>galaxy-chatbot</name>
+	<description>galaxy-chatbot</description>
 
 	<properties>
 		<java.version>8</java.version>
