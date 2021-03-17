@@ -8,10 +8,11 @@ phases:
   build:
     commands:
       # - cd ./GalaxyChatbot
+      - echo `sudo pwd`
       - echo build started at `date`
       - openssl enc -d -aes-256-ecb -md md5 -in src/main/resources/application.properties.secrets -out src/main/resources/application.properties -k $SECRETS_KEY
       - echo decrepted at `date`
-      - mvn clean install
+      - mvn clean package
 
 artifacts:
   files:
