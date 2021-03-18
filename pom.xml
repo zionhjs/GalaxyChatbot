@@ -22,7 +22,6 @@
 		<github.global.server>github</github.global.server>
 	</properties>
 
-
 	<distributionManagement>
 		<repository>
 			<id>releases</id>
