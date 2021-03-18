@@ -22,43 +22,30 @@
 		<github.global.server>github</github.global.server>
 	</properties>
 
-
-	<distributionManagement>
-		<repository>
-			<id>releases</id>
-			<name>Nexus Release Repository</name>
-			<url>http://54.177.202.16:8081/repository/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>Nexus Snapshot Repository</name>
-			<url>http://54.177.202.16:8081/repository/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<repositories>
 		<repository>
-			<id>nexus</id>
-			<name>nexus</name>
-			<url>http://54.177.202.16:8081/repository/public/</url>
+			<id>alimaven</id>
+			<name>aliyun maven</name>
+			<url>http://54.177.202.16:8081/#browse/browse:maven-releases:com</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
 			<snapshots>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
+
 	<pluginRepositories>
 		<pluginRepository>
-			<id>nexus</id>
-			<name>nexus</name>
-			<url>http://54.177.202.16:8081/repository/public/</url>
+			<id>alimaven</id>
+			<name>aliyun maven</name>
+			<url>http://54.177.202.16:8081/#browse/browse:maven-releases:com</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
 			<snapshots>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
@@ -192,7 +179,7 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
+				<directory>../src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
 		</resources>
