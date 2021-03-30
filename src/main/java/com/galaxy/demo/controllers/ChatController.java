@@ -153,6 +153,7 @@ public class ChatController {
             LOGGER.info("MSG: " + msg.toString());
             // String retMsg = msg.getFrom()
             if(msg.getIndex() > twilioMessage.getIndex()){
+                LOGGER.info("adding messages and MSG is: " + msg.getBody());
                 messageStr.add(msg.getBody());
             }
         }
