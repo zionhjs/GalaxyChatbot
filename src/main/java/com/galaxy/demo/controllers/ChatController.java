@@ -102,6 +102,17 @@ public class ChatController {
         String email = httpRequest.getParameter("userEmail");
         LOGGER.info("DisConneting to our chat agent! For email: " + email);
         UserVo userVo = userVoDao.findUserVoByEmail(email);
+        if(userVo == null){
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("The userEmail is not exist or already DisConnected!");
+            try {
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
         removeChannel(userVo);
         removeService(userVo);
         removeWebhook(userVo);
