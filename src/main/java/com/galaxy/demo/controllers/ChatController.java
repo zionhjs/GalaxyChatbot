@@ -146,7 +146,7 @@ public class ChatController {
         Webhook webhook = getWebhook(userVo);
         LOGGER.info("the current webhook autopilotUrl is: " + webhook.getConfiguration().toString());
 
-        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(99).read();
+        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(399).read();
         // String messageStr = "";
         List<String> messageStr = new ArrayList<>();
         for(Message msg: messages){
@@ -168,6 +168,7 @@ public class ChatController {
         }catch(IOException e){
             e.printStackTrace();
         }
+        LOGGER.info("response is:" + response.toString());
         return response;
     }
 
