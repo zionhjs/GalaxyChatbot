@@ -131,7 +131,7 @@ public class ChatController {
         Channel channel = getChannel(userVo);
         Message twilioMessage = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message).create();  // service instance not found
         // Message twilioMessage = Message.creator(userVo.getServiceSid(), (String)channel.getSid()).create();
-        LOGGER.info("twilioMessage: " + twilioMessage.toString() + "messageBody:" + twilioMessage.getBody());
+        LOGGER.info("twilioMessage: " + twilioMessage.toString());
         Webhook webhook = getWebhook(userVo);
         LOGGER.info("the current webhook autopilotUrl is: " + webhook.getConfiguration().toString());
 
@@ -139,8 +139,11 @@ public class ChatController {
         // String messageStr = "";
         List<String> messageStr = new ArrayList<>();
         for(Message msg: messages){
-            LOGGER.info("Msg: " + msg.getBody());
-            messageStr.add(msg.getBody());
+            LOGGER.info("MSG: " + msg.toString());
+            // String retMsg = msg.getFrom()
+            if(msg.getIndex() > twilioMessage.getIndex()){
+                messageStr.add(msg.getBody());
+            }
         }
         Result result = new Result();
         result.setCode(ResultCode.SUCCESS.code());
@@ -157,6 +160,7 @@ public class ChatController {
         return response;
     }
 
+    // get messages is to get all the chat history
     @RequestMapping(value="/getmessages", method=RequestMethod.POST)
     public ServletResponse getMessages(ServletRequest request, ServletResponse response){
         HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -173,7 +177,7 @@ public class ChatController {
         result.setMessage("successfully fetches all the messages!");
         List<String> messageStr = new ArrayList<>();
         for(Message msg: messages){
-            LOGGER.info("Msg: " + msg.getBody());
+            LOGGER.info("Msg: " + msg.getBody() + " from: " + msg.getFrom() + " to: " + msg.getTo());
             messageStr.add(msg.getBody());
         }
         result.setDatas(messageStr);

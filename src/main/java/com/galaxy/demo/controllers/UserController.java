@@ -72,7 +72,7 @@ public class UserController {
             result.setCode(ResultCode.FAIL.code());
             result.setMessage("The User already been subscribed!");
         }
-
+    
         try {
             response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
         } catch (IOException e) {
