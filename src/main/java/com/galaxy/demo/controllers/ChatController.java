@@ -27,8 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /***
@@ -66,7 +68,7 @@ public class ChatController {
             result.setCode(ResultCode.SUCCESS.code());
             result.setMessage("successfully connected the userVo for the provided email");
 
-            // try and get a chennel
+            // try and create a service / channel / webhook for userVo
             Service service = getService(userVo);
             Channel channel = getChannel(userVo);
             Webhook webhook = getWebhook(userVo);
@@ -138,6 +140,28 @@ public class ChatController {
         LOGGER.info("sending messages and the message is: " + message);
         String userEmail = httpRequest.getParameter("userEmail");
         UserVo userVo = userVoDao.findUserVoByEmail(userEmail);
+        if(userVo == null){
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("The userEmail is not registered in the system yet!");
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
+        if(userVo.getChannelSid() == null || userVo.getServiceSid() == null || userVo.getWebhookSid() == null){
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("The userEmail: " + userEmail + " is not connected yet! Please Connect to the ChatServer First!");
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
         // get the right channel
         Channel channel = getChannel(userVo);
         Message twilioMessage = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message).create();  // service instance not found
@@ -146,8 +170,36 @@ public class ChatController {
         Webhook webhook = getWebhook(userVo);
         LOGGER.info("the current webhook autopilotUrl is: " + webhook.getConfiguration().toString());
 
+        // needs to print time to check if the Thread.sleep() is working
+        SimpleDateFormat sdf = new SimpleDateFormat();// 格式化时间
+        sdf.applyPattern("yyyy-MM-dd HH:mm:ss a");// a为am/pm的标记
+        Date dateBefore = new Date();// 获取当前时间
+        LOGGER.info("current time before thread.sleep(): " + sdf.format(dateBefore));
+
+        // using Thread to block the main Thread for 1.5s
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(" Sleeping");
+                try{
+                    Thread.sleep(1200);
+                } catch (InterruptedException ex){
+                    ex.printStackTrace();
+                }
+            }
+        };
+
+        Thread thread = new Thread(r);
+        thread.start();
+        try{
+            thread.join();
+        }catch(InterruptedException ex){
+            ex.printStackTrace();
+        }
+        Date dateAfter = new Date();// 获取当前时间
+        LOGGER.info("current time after thread.sleep(): " + sdf.format(dateAfter));
         ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(399).read();
-        // String messageStr = "";
+
         List<String> messageStr = new ArrayList<>();
         for(Message msg: messages){
             LOGGER.info("MSG: " + msg.toString());
@@ -179,11 +231,24 @@ public class ChatController {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String userEmail = httpRequest.getParameter("userEmail");
+        LOGGER.info("Trying to find user from userEmail:" + userEmail);
         UserVo userVo = userVoDao.findUserVoByEmail(userEmail);
+        if(userVo == null){
+            LOGGER.info("Error can't find the userVo");
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("Error, Can't find userVo for userEmail" + userEmail);
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
         // get the right channel
         Channel channel = getChannel(userVo);
         LOGGER.info("message count is: " + channel.getMessagesCount() + " Members count: " + channel.getMembersCount());
-        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(99).read();
+        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(199).read();
         LOGGER.info("Getting all the  messages and the messages are: " + messages.toString());
         Result result = new Result();
         result.setCode(ResultCode.SUCCESS.code());
@@ -259,7 +324,15 @@ public class ChatController {
     }
 
     private void removeChannel(UserVo userVo){
+        if(userVo.getChannelSid() == null){
+            LOGGER.info("Not Existing the ChannelSid: " + userVo.getChannelSid());
+            return;
+        }
         Channel channel = Channel.fetcher(userVo.getServiceSid(), userVo.getChannelSid()).fetch();
+        if(channel == null){
+            LOGGER.info("Not Existing the Channel: " + channel.toString());
+            return;
+        }
         channelService.deleteChannel(channel);
         userVo.setChannelSid(null);
         userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
@@ -267,6 +340,10 @@ public class ChatController {
     }
 
     private void removeService(UserVo userVo){
+        if(userVo.getServiceSid() == null){
+            LOGGER.info("Not Existing the ServiceSid: " + userVo.getServiceSid());
+            return;
+        }
         Service.deleter(userVo.getServiceSid());
         userVo.setServiceSid(null);
         userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
@@ -274,6 +351,10 @@ public class ChatController {
     }
 
     private void removeWebhook(UserVo userVo){
+        if(userVo.getWebhookSid() == null){
+            LOGGER.info("Not Existing the WebhookSid: " + userVo.getWebhookSid());
+            return;
+        }
         Webhook.deleter(userVo.getServiceSid(), userVo.getChannelSid(), userVo.getWebhookSid());
         userVo.setWebhookSid(null);
         userVoDao.findUserVoAndModify(userVo.getId(), userVo.getUserEmail(), userVo.getUserNumber(), userVo.getTwilioToken(), userVo.getChannelSid(), userVo.getServiceSid(), userVo.getWebhookSid());
@@ -281,6 +362,5 @@ public class ChatController {
     }
 
 }
-
 
 
