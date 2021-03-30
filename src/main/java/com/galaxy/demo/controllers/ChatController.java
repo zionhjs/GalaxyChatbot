@@ -10,6 +10,7 @@ import com.galaxy.demo.utils.JsonBinderUtil;
 import com.galaxy.demo.utils.ServletResponseUtils;
 import com.twilio.base.ResourceSet;
 import com.twilio.rest.chat.v2.service.channel.Message;
+import com.twilio.rest.chat.v2.service.channel.MessageCreator;
 import com.twilio.rest.chat.v2.service.channel.Webhook;
 import com.twilio.rest.ipmessaging.v2.service.Channel;
 import com.twilio.rest.chat.v2.Service;
@@ -115,6 +116,19 @@ public class ChatController {
             }
             return response;
         }
+
+        if(userVo.getChannelSid() == null || userVo.getServiceSid() == null || userVo.getWebhookSid() == null){
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("The user is Already DISCONNECTED! No Need Do it Twice!");
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
+
         removeChannel(userVo);
         removeService(userVo);
         removeWebhook(userVo);
@@ -164,7 +178,10 @@ public class ChatController {
         }
         // get the right channel
         Channel channel = getChannel(userVo);
-        Message twilioMessage = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message).create();  // service instance not found
+        MessageCreator messageCreator = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message);
+        messageCreator.setFrom("user");
+        Message twilioMessage = messageCreator.create();
+        // Message twilioMessage = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message).create();  // service instance not found
         // Message twilioMessage = Message.creator(userVo.getServiceSid(), (String)channel.getSid()).create();
         LOGGER.info("twilioMessage: " + twilioMessage.toString());
         Webhook webhook = getWebhook(userVo);
@@ -182,7 +199,7 @@ public class ChatController {
             public void run() {
                 System.out.println(" Sleeping");
                 try{
-                    Thread.sleep(1200);
+                    Thread.sleep(600);
                 } catch (InterruptedException ex){
                     ex.printStackTrace();
                 }
@@ -198,7 +215,7 @@ public class ChatController {
         }
         Date dateAfter = new Date();// 获取当前时间
         LOGGER.info("current time after thread.sleep(): " + sdf.format(dateAfter));
-        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(399).read();
+        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(99).read();
 
         List<String> messageStr = new ArrayList<>();
         for(Message msg: messages){
@@ -206,7 +223,7 @@ public class ChatController {
             // String retMsg = msg.getFrom()
             if(msg.getIndex() > twilioMessage.getIndex()){
                 LOGGER.info("adding messages and MSG is: " + msg.getBody());
-                messageStr.add(msg.getBody());
+                messageStr.add("From:" + msg.getFrom() + " # " + msg.getBody() + " # msg.index:" + msg.getIndex());
             }
         }
         Result result = new Result();
@@ -245,7 +262,20 @@ public class ChatController {
             }
             return response;
         }
-        // get the right channel
+        if(userVo.getChannelSid() == null || userVo.getServiceSid() == null || userVo.getWebhookSid() == null){
+            LOGGER.info("userVo already disconnected! There is no History anymore");
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("userVo already disconnected! There is no History anymore");
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        // when successful get the right channel
         Channel channel = getChannel(userVo);
         LOGGER.info("message count is: " + channel.getMessagesCount() + " Members count: " + channel.getMembersCount());
         ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(199).read();
@@ -256,8 +286,69 @@ public class ChatController {
         List<String> messageStr = new ArrayList<>();
         for(Message msg: messages){
             LOGGER.info("Msg: " + msg.getBody() + " from: " + msg.getFrom() + " to: " + msg.getTo());
-            messageStr.add(msg.getBody());
+            messageStr.add("From:" + msg.getFrom() + " # " + msg.getBody() + " # msg.index:" + msg.getIndex());
         }
+        result.setDatas(messageStr);
+        try{
+            response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    // get messages is to get all the chat history
+    @RequestMapping(value="/getmessages/heartbeat", method=RequestMethod.POST)
+    public ServletResponse getMessageHeartbeat(ServletRequest request, ServletResponse response){
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String userEmail = httpRequest.getParameter("userEmail");
+        Integer messageIndex = Integer.parseInt(httpRequest.getParameter("index"));
+        LOGGER.info("Trying to find message larget than Index from userEmail:" + userEmail);
+        UserVo userVo = userVoDao.findUserVoByEmail(userEmail);
+        if(userVo == null){
+            LOGGER.info("Error can't find the userVo");
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("Error, Can't find userVo for userEmail" + userEmail);
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
+        // when already disconnected
+        if(userVo.getChannelSid() == null || userVo.getServiceSid() == null || userVo.getWebhookSid() == null){
+            LOGGER.info("userVo already disconnected! There is no History anymore");
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("userVo already disconnected! There is no History anymore");
+            try{
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        // get the right channel
+        Channel channel = getChannel(userVo);
+        LOGGER.info("message count is: " + channel.getMessagesCount() + " Members count: " + channel.getMembersCount());
+        ResourceSet<Message> messages = Message.reader(userVo.getServiceSid(), channel.getSid()).limit(99).read();
+        LOGGER.info("Getting all the  messages and the messages are: " + messages.toString());
+
+        List<String> messageStr = new ArrayList<>();
+        for(Message msg: messages){
+            LOGGER.info("Msg: " + msg.getBody() + " from: " + msg.getFrom() + " to: " + msg.getTo());
+            if(msg.getIndex() > messageIndex){
+                messageStr.add("From:" + msg.getFrom() + " # " + msg.getBody() + " # msg.index:" + msg.getIndex());
+            }
+        }
+        Result result = new Result();
+        result.setCode(ResultCode.SUCCESS.code());
+        result.setMessage("successfully updated some messages! And the message count is:" + messageStr.size());
         result.setDatas(messageStr);
         try{
             response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
