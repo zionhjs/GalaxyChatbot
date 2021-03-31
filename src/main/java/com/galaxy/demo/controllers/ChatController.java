@@ -181,8 +181,6 @@ public class ChatController {
         MessageCreator messageCreator = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message);
         messageCreator.setFrom("user");
         Message twilioMessage = messageCreator.create();
-        // Message twilioMessage = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message).create();  // service instance not found
-        // Message twilioMessage = Message.creator(userVo.getServiceSid(), (String)channel.getSid()).create();
         LOGGER.info("twilioMessage: " + twilioMessage.toString());
         Webhook webhook = getWebhook(userVo);
         LOGGER.info("the current webhook autopilotUrl is: " + webhook.getConfiguration().toString());
@@ -229,7 +227,6 @@ public class ChatController {
         Result result = new Result();
         result.setCode(ResultCode.SUCCESS.code());
         result.setMessage("successfully fetches all the messages!");
-        // result.setData(messageStr);
         result.setDatas(messageStr);
         LOGGER.info("Returning result!");
         // return twilioMessage.toString();
