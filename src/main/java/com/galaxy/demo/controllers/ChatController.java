@@ -63,6 +63,18 @@ public class ChatController {
         LOGGER.info("Conneting to our chat agent! and email is: " + email);
         UserVo userVo = userVoDao.findUserVoByEmail(email);
 
+        if(userVo != null && userVo.getChannelSid() != null){
+            Result result = new Result();
+            result.setCode(ResultCode.FAIL.code());
+            result.setMessage("This userEmail:" + email + " is already connected! no Need Connect Twice!");
+            try {
+                response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+
         if(userVo != null){
             LOGGER.info("uservo exist!");
             Result result = new Result();
