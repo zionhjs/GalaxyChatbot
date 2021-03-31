@@ -65,7 +65,7 @@ public class ChatController {
 
         if(userVo != null && userVo.getChannelSid() != null){
             Result result = new Result();
-            result.setCode(ResultCode.FAIL.code());
+            result.setCode(ResultCode.SUCCESS.code());
             result.setMessage("This userEmail:" + email + " is already connected! no Need Connect Twice!");
             try {
                 response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
