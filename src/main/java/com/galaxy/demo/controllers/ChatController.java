@@ -103,7 +103,7 @@ public class ChatController {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = httpRequest.getParameter("userEmail");
-        LOGGER.info("DisConneting to our chat agent! For email: " + email);
+        LOGGER.info("DisConnecting to our chat agent! For email: " + email);
         UserVo userVo = userVoDao.findUserVoByEmail(email);
         if(userVo == null){
             Result result = new Result();
