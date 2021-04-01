@@ -188,6 +188,7 @@ public class ChatController {
             }
             return response;
         }
+
         // get the right channel
         Channel channel = getChannel(userVo);
         MessageCreator messageCreator = Message.creator(userVo.getServiceSid(), channel.getSid()).setBody(message);
