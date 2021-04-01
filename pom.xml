@@ -39,7 +39,7 @@
 		<repository>
 			<id>nexus</id>
 			<name>nexus</name>
-			<url>http://54.177.202.16:8081/repository/public/</url>
+			<url>http://54.177.202.16:8081/repository/maven-public/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -52,7 +52,7 @@
 		<pluginRepository>
 			<id>nexus</id>
 			<name>nexus</name>
-			<url>http://54.177.202.16:8081/repository/public/</url>
+			<url>http://54.177.202.16:8081/repository/maven-public/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -97,14 +97,21 @@
 <!--			<artifactId>twilio-java-sdk</artifactId>-->
 <!--			<version>3.6.0</version>-->
 <!--		</dependency>-->
+
 		<dependency>
 			<groupId>com.twilio.sdk</groupId>
 			<artifactId>twilio-java-sdk</artifactId>
 			<version>3.6.0</version>
 		</dependency>
 
+<!--		<dependency>-->
+<!--			<groupId>com.twilio.sdk</groupId>-->
+<!--			<artifactId>twilio</artifactId>-->
+<!--			<version>8.5.1</version>-->
+<!--		</dependency>-->
+
 		<dependency>
-			<groupId>com.twilio.sdk</groupId>
+			<groupId>com.twiliolocal.sdk</groupId>
 			<artifactId>twilio</artifactId>
 			<version>8.5.1</version>
 		</dependency>
