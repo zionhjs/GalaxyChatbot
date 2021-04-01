@@ -64,7 +64,7 @@ public class ContactController {
         multipart.addBodyPart(messageBodyPart);
         MimeBodyPart attachPart = new MimeBodyPart();
 
-        // send it!
+        // send it out!
         Transport.send(msg);
 
         // return some frontend response back
