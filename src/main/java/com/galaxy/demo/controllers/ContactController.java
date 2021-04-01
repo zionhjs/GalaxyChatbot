@@ -27,7 +27,7 @@ import java.util.Properties;
 public class ContactController {
     private final static Logger LOGGER = LoggerFactory.getLogger(ChatController.class);
 
-    @RequestMapping(value="/quotation", method= RequestMethod.POST)
+    @RequestMapping(value="/quotation", method=RequestMethod.POST)
     public ServletResponse createUser(@RequestBody QuotationRequest request, ServletResponse response) throws AddressException, MessagingException, IOException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = request.getUserEmail();
