@@ -7,7 +7,7 @@ hooks:
   ApplicationStop:
     - location: ./stop.sh
       timeout: 300
-      runas: ec2-user
+      runas: root
   BeforeInstall:
     - location: ./check.sh
       timeout: 300
