@@ -4,10 +4,10 @@ files:
   - source: ./galaxychatbots-0.0.1-SNAPSHOT.jar
     destination: /home/ec2-user/jar
 hooks:
-#  ApplicationStop:
-#    - location: ./stop.sh
-#      timeout: 300
-#      runas: root
+  ApplicationStop:
+    - location: ./stop.sh
+      timeout: 300
+      runas: root
   BeforeInstall:
     - location: ./check.sh
       timeout: 300
