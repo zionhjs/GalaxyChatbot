@@ -186,6 +186,11 @@
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
 		</dependency>
+<!--		for sending an email-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
