@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -16,7 +17,7 @@ public class Result {
     private int code;
     private String message;
     private Object data;
-    private List<String> datas;
+    private List<String> datas = new ArrayList<String>();
 
     public static Result success() {
         Result result = new Result();
