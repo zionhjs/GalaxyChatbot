@@ -237,6 +237,7 @@ public class ChatController {
                 messageStr.add("From:" + msg.getFrom() + " # " + msg.getBody() + " # msg.index:" + msg.getIndex());
             }
         }
+        if(messageStr.size() == 0) messageStr.add("");
         Result result = new Result();
         result.setCode(ResultCode.SUCCESS.code());
         result.setMessage("successfully fetches all the messages!");
@@ -298,6 +299,8 @@ public class ChatController {
             LOGGER.info("Msg: " + msg.getBody() + " from: " + msg.getFrom() + " to: " + msg.getTo());
             messageStr.add("From:" + msg.getFrom() + " # " + msg.getBody() + " # msg.index:" + msg.getIndex());
         }
+
+        if(messageStr.size() == 0) messageStr.add("");
         result.setDatas(messageStr);
         try{
             response = ServletResponseUtils.setResponseData(httpResponse, JsonBinderUtil.toJson(result));
@@ -356,6 +359,7 @@ public class ChatController {
                 messageStr.add("From:" + msg.getFrom() + " # " + msg.getBody() + " # msg.index:" + msg.getIndex());
             }
         }
+        if(messageStr.size() == 0) messageStr.add("");
         Result result = new Result();
         result.setCode(ResultCode.SUCCESS.code());
         result.setMessage("successfully updated some messages! And the message count is:" + messageStr.size());
