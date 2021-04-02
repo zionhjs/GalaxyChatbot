@@ -14,8 +14,13 @@ public class SubscriptionRequest {
 
     private String userNumber;
 
-    public SubscriptionRequest(@JsonProperty("userEmail") String userEmail, @JsonProperty("userNumber") String userNumber) {
+    private String userName;
+
+    public SubscriptionRequest(@JsonProperty("userEmail") String userEmail, @JsonProperty("userNumber") String userNumber, @JsonProperty("userName") String userName) {
         this.userEmail = userEmail;
         this.userNumber = userNumber;
+        this.userName = userName;
     }
 }
+
+

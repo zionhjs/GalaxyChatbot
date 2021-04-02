@@ -50,17 +50,18 @@ public class UserController {
     public ServletResponse createUser(@RequestBody SubscriptionRequest request, ServletResponse response){
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String email = request.getUserEmail();
+        String number = request.getUserNumber();
+        String name = request.getUserName();
         LOGGER.info("Subscribing For user-email: " + email);
         Result result = new Result();
         if(userVoDao.findUserVoByEmail(email) == null){
             UserVo userVo = new UserVo();
             LOGGER.info("Subscribing For user-email: " + email);
             userVo.setUserEmail(email);
-            if(request.getUserNumber() != null){
-                String number = request.getUserNumber();
-                userVo.setUserNumber(number);
-            }
-            if(email != null){
+            userVo.setUserNumber(number);
+            userVo.setUserName(name);
+
+            if(email.length() > 3){
                 result.setCode(ResultCode.SUCCESS.code());
                 result.setMessage(" Subscribed user to our list: " + JsonBinderUtil.toJson(userVo));
                 userVoDao.createUserVo(userVo);
@@ -121,15 +122,7 @@ public class UserController {
         }
 
         return response;
-        // return ResponseEntity.ok().body("SuccessFully unsubscribed " + unSubScriptionRequest.getUserEmail());
     }
-
-//    private void delayUnsub(UserVo userVo){
-//        if(userVo.getChannelSid() != null) removeChannel(userVo);
-//        if(userVo.getServiceSid() != null) removeService(userVo);
-//        if(userVo.getWebhookSid() != null) removeWebhook(userVo);
-//        if(userVo.getId() != null) userVoDao.removeUserVo(userVo.getId());
-//    }
 
     private void removeChannel(UserVo userVo){
         Channel channel = Channel.fetcher(userVo.getServiceSid(), userVo.getChannelSid()).fetch();

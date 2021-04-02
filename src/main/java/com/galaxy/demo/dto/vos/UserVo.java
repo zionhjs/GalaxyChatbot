@@ -21,6 +21,7 @@ public class UserVo implements Serializable {
     private String id;
     private String userEmail;
     private String userNumber;
+    private String userName;
 
     private String twilioToken;
     private String channelSid;
