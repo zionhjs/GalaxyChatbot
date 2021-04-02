@@ -11,13 +11,16 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class Result {
     private int code;
     private String message;
     private Object data;
-    private List<String> datas = new ArrayList<String>();
+    private List<String> datas;
+
+    public Result(){
+        this.datas = new ArrayList<String>();
+    }
 
     public static Result success() {
         Result result = new Result();
